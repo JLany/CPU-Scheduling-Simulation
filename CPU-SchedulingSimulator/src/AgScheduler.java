@@ -5,8 +5,8 @@ import java.util.Random;
 public class AgScheduler extends Scheduler {
     private final Random _random = new Random();
 
-    public AgScheduler(List<Process> processes, int contextSwitchTime, Comparator<Process> priority) {
-        super(processes, contextSwitchTime, priority);
+    public AgScheduler(List<Process> processes, int contextSwitchTime) {
+        super(processes, contextSwitchTime, Comparator.comparingInt(Process::getAgFactor));
 
         initAg(processes);
     }
