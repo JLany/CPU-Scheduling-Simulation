@@ -64,9 +64,7 @@ public class AgScheduler extends Scheduler {
 
         // 3: Finished burst.
         if (finishedBurst(activeProcess)) {
-            super.addToKilled(activeProcess);
-            activeProcess.setDead(true);
-
+            activeProcess.setQuantum(0);
             return true;
         }
 

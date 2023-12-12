@@ -87,7 +87,13 @@ public abstract class Scheduler {
         _activeProcess.setWaitingTime(_activeProcess.getWaitingTime() + (_time - _activeProcess.getLastRunTime()));
 
         old.setLastRunTime(_time);
-        _readyQueue.add(old);
+
+        if (old.getBurstTime() <= 0) {
+            old.setDead(true);
+            _killedProcesses.add(old);
+        } else {
+            _readyQueue.add(old);
+        }
 
         _time += _contextSwitchTime;
     }
