@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -12,17 +13,20 @@ public abstract class Scheduler {
     private Process _activeProcess;
     private PriorityQueue<Process> _readyQueue;
     private PriorityQueue<Process> _arrivalBus;
+    private List<Process> _killedProcesses;
 
     public Scheduler(List<Process> processes, int contextSwitchTime, Comparator<Process> priority) {
-        _contextSwitchTime = contextSwitchTime;
-
-        _readyQueue = new PriorityQueue<>(priority);
-
         _arrivalBus = new PriorityQueue<>(Comparator.comparingInt(Process::getArrivalTime));
         _arrivalBus.addAll(processes);
+
+        // The ready queue's priority is determined by the implementors of Scheduler.
+        _readyQueue = new PriorityQueue<>(priority);
+
+        _contextSwitchTime = contextSwitchTime;
+        _killedProcesses = new ArrayList<>();
     }
 
-    public void start() {
+    public final void start() {
 
         // This loop's iteration counts as one unit of time.
         // Why?
@@ -35,10 +39,11 @@ public abstract class Scheduler {
 
             // This simulates switching to another process.
             if (dispatch()) {
-                _time += _contextSwitchTime;
+                dispatchInternal();
             }
 
             cpuCycle();
+            _time++;
         }
 
     }
@@ -48,31 +53,50 @@ public abstract class Scheduler {
         // _activeProcess.remainingTime--
         // ...
         // other adjustments needed for a process.
-
-        _time++;
     }
 
     private void populateQueue() {
+        // When arrival bus queue is empty, we terminate by setting _run to false.
+        if (_arrivalBus.size() < 1) {
+            _run = false;
+            return;
+        }
+
         // Look for a process with arrival time equal to current time.
         // If any, push it to the ready queue.
-
-        // Might use a separate priority queue for arriving processes.
-        // When this queue is empty, we terminate by setting _run to false.
+        while (_arrivalBus.peek().getArrivalTime() == _time) {
+            _readyQueue.add(_arrivalBus.poll());
+        }
     }
 
     // This method will vary across different scheduling algorithms.
     // Return true if dispatched. Else false, indicating that no switch was needed.
     protected abstract boolean dispatch();
 
-    protected final void setActiveProcess(Process process) {
-        _activeProcess = process;
+    // Performs the actual context switch.
+    private void dispatchInternal() {
+        Process old = _activeProcess;
+        _activeProcess = _readyQueue.poll();
+
+        old.setLastRunTime(_time);
+        _readyQueue.add(old);
+
+        _time += _contextSwitchTime;
+    }
+
+    protected final int getTime() {
+        return _time;
     }
 
     protected final Process getActiveProcess() {
         return _activeProcess;
     }
 
-    protected final void pushToReadyQueue(Process process) {
-        _readyQueue.add(process);
+    protected final Process peekReadyQueue() {
+        return _readyQueue.peek();
+    }
+
+    protected final void addToKilled(Process process) {
+        _killedProcesses.add(process);
     }
 }
