@@ -1,6 +1,8 @@
 import java.util.*;
 import java.util.stream.Stream;
 
+// TODO - Think: How to incorporate gathering statistics in the process of this class?
+
 public abstract class Scheduler {
 
     // Think: Should these be defined here in the base?
@@ -96,6 +98,7 @@ public abstract class Scheduler {
             return;
         }
 
+        // TODO - Think: What else needs adjustment during execution of a process?
         // _activeProcess.remainingTime--
         // ...
         // other adjustments needed for a process.
