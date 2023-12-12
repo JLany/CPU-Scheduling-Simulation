@@ -11,6 +11,7 @@ public class Process {
     private int waitingTime;
     private int agFactor;
     private int lastRunTime;
+    private int remainingTime;
     private boolean dead;
     private boolean arrived;
 
@@ -26,6 +27,7 @@ public class Process {
         this.waitingTime = 0;
         this.agFactor = -1;
         this.lastRunTime = 0;
+        this.remainingTime = burstTime;
     }
 
     public int getPid() {
@@ -46,6 +48,10 @@ public class Process {
 
     public int getBurstTime() {
         return burstTime;
+    }
+
+    public void decrementRemainingTime() {
+        this.remainingTime--;
     }
 
     public int getQuantum() {
@@ -98,6 +104,14 @@ public class Process {
 
     public void setLastRunTime(int lastRunTime) {
         this.lastRunTime = lastRunTime;
+    }
+
+    public int getRemainingTime() {
+        return remainingTime;
+    }
+
+    public void setRemainingTime(int remainingTime) {
+        this.remainingTime = remainingTime;
     }
 
     public boolean isDead() {
