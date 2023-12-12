@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class Scheduler {
@@ -12,19 +9,25 @@ public abstract class Scheduler {
     private int _time;
     private final int _contextSwitchTime;
     private Process _activeProcess;
-    private final PriorityQueue<Process> _readyQueue;
+    private final Queue<Process> _readyQueue;
     private final PriorityQueue<Process> _arrivalBus;
     private final List<Process> _killedProcesses;
 
-    public Scheduler(List<Process> processes, int contextSwitchTime, Comparator<Process> priority) {
+    // Initializes the ready queue as a custom queue chosen by implementors.
+    public Scheduler(List<Process> processes, int contextSwitchTime, Queue<Process> queueImpl) {
         _arrivalBus = new PriorityQueue<>(Comparator.comparingInt(Process::getArrivalTime));
         _arrivalBus.addAll(processes);
 
-        // The ready queue's priority is determined by the implementors of Scheduler.
-        _readyQueue = new PriorityQueue<>(priority);
+        // The ready queue's type and priority are determined by the implementors of Scheduler.
+        _readyQueue = queueImpl;
 
         _contextSwitchTime = contextSwitchTime;
         _killedProcesses = new ArrayList<>();
+    }
+
+    // Initializes the ready queue as a FIFO.
+    public Scheduler(List<Process> processes, int contextSwitchTime) {
+        this(processes, contextSwitchTime, new LinkedList<>());
     }
 
     public final void start() {
