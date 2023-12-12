@@ -23,7 +23,7 @@ public class Main {
         srtfProcesses.add(new Process(3, "P3", 2, 0, 9, 0));
         srtfProcesses.add(new Process(4, "P4", 3, 0, 5, 0));
 
-        final var srtfSched = new SJFScheduler(srtfProcesses, 0);
+        final var srtfSched = new SRTFScheduler(srtfProcesses, 0, 10);
         srtfSched.start();
 
     }
