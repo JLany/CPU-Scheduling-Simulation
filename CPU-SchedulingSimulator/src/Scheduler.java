@@ -8,17 +8,18 @@ public abstract class Scheduler {
 
     private boolean _run;
     private int _time;
-    private int _contextSwitchTime;
+    private final int _contextSwitchTime;
     private Process _activeProcess;
     private PriorityQueue<Process> _readyQueue;
     private PriorityQueue<Process> _arrivalBus;
 
-    public Scheduler(List<Process> processes, int contextSwitchTime,
-                     Comparator<Process> priority) {
+    public Scheduler(List<Process> processes, int contextSwitchTime, Comparator<Process> priority) {
         _contextSwitchTime = contextSwitchTime;
 
         _readyQueue = new PriorityQueue<>(priority);
+
         _arrivalBus = new PriorityQueue<>(Comparator.comparingInt(Process::getArrivalTime));
+        _arrivalBus.addAll(processes);
     }
 
     public void start() {
@@ -27,6 +28,7 @@ public abstract class Scheduler {
         // Why?
         // Because some algorithms are preemptive, and thus a process
         // could be preempted after each cycle of cpu.
+
         while (_run) {
             // This simulates a process arriving.
             populateQueue();
@@ -64,6 +66,10 @@ public abstract class Scheduler {
 
     protected final void setActiveProcess(Process process) {
         _activeProcess = process;
+    }
+
+    protected final Process getActiveProcess() {
+        return _activeProcess;
     }
 
     protected final void pushToReadyQueue(Process process) {
