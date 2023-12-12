@@ -43,12 +43,16 @@ public class Main {
         System.out.println("AG Scheduler");
         final var agProcesses = new ArrayList<Process>();
 
-        // Example from the book page 270
-        agProcesses.add(new Process(1, "P1", 0, 3, 10, 4));
-        agProcesses.add(new Process(2, "P2", 0, 1, 1, 4));
-        agProcesses.add(new Process(3, "P3", 0, 4, 2, 4));
-        agProcesses.add(new Process(4, "P4", 0, 5, 1, 4));
-        agProcesses.add(new Process(5, "P5", 0, 2, 5, 4));
+        // Example from the assignment.
+        agProcesses.add(new Process(1, "P1", 0, 4, 17, 4));
+        agProcesses.add(new Process(2, "P2", 3, 9, 6, 4));
+        agProcesses.add(new Process(3, "P3", 4, 3, 10, 4));
+        agProcesses.add(new Process(4, "P4", 29, 8, 4, 4));
+
+        agProcesses.get(0).setAgFactor(20);
+        agProcesses.get(1).setAgFactor(17);
+        agProcesses.get(2).setAgFactor(16);
+        agProcesses.get(3).setAgFactor(43);
 
         final var agSched = new AgScheduler(agProcesses, 0);
         agSched.start();

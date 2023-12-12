@@ -55,7 +55,7 @@ public class AgScheduler extends Scheduler {
         }
 
         // 2: Preempted by another higher priority process.
-        if (checkForHigherPriority(activeProcess)) {
+        if (checkForHigherPriority(activeProcess).isPresent()) {
             int remainingQuantum = activeProcess.getQuantum() - activeProcess.getCurrentBurstDuration();
             increaseProcessQuantum(activeProcess, remainingQuantum);
 
@@ -75,14 +75,20 @@ public class AgScheduler extends Scheduler {
         return process.getBurstTime() <= 0;
     }
 
-    private boolean checkForHigherPriority(Process process) {
+    private Optional<Process> checkForHigherPriority(Process process) {
         Optional<Process> processOptional = _agFactorQueue.stream()
+                .filter(p -> p.getPid() != process.getPid())
                 .filter(Process::isArrived)
+                .filter(p -> !p.isDead())
                 .findFirst();
 
         Process candidate = processOptional.orElse(null);
 
-        return candidate != null && candidate.getAgFactor() < process.getAgFactor();
+        if (candidate != null && candidate.getAgFactor() < process.getAgFactor()) {
+            return processOptional;
+        }
+
+        return Optional.empty();
     }
 
     private boolean consumedQuantum(Process process) {
@@ -114,5 +120,12 @@ public class AgScheduler extends Scheduler {
         int quantum = activeProcess.getQuantum();
 
         return (activeFor >= Math.ceil(quantum / 2.0));
+    }
+
+    @Override
+    protected Process selectNextProcess() {
+        var processOptional = checkForHigherPriority(super.getActiveProcess());
+
+        return processOptional.orElseGet(super::selectNextProcess);
     }
 }
