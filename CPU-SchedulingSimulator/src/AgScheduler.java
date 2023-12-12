@@ -34,23 +34,77 @@ public class AgScheduler extends Scheduler {
 
     @Override
     protected boolean dispatch() {
-        if (!checkPreemption(super.getActiveProcess())) {
+        Process activeProcess = super.getActiveProcess();
+
+        if (!canPreemptProcess(super.getActiveProcess())) {
             return false;
         }
 
         // Three cases:
 
         // 1: Consumed all quantum.
+        if (consumedQuantum(activeProcess)) {
+            int avgQuantum = calculateAvgQuantum();
+            increaseProcessQuantum(activeProcess, avgQuantum);
+
+            return true;
+        }
 
         // 2: Preempted by another higher priority process.
+        if (checkForHigherPriority(activeProcess)) {
+            int remainingQuantum = activeProcess.getQuantum() - activeProcess.getCurrentBurstDuration();
+            increaseProcessQuantum(activeProcess, remainingQuantum);
+
+            return true;
+        }
 
         // 3: Finished burst.
+        if (finishedBurst(activeProcess)) {
+            super.addToKilled(activeProcess);
+            activeProcess.setDead(true);
+
+            return true;
+        }
 
         return false;
     }
 
-    private boolean checkPreemption(Process activeProcess) {
-        int activeFor = super.getTime() - activeProcess.getLastRunTime();
+    private boolean finishedBurst(Process process) {
+        return process.getBurstTime() <= 0;
+    }
+
+    private boolean checkForHigherPriority(Process process) {
+        Process candidate = super.peekReadyQueue();
+
+        return candidate != null && candidate.getAgFactor() < process.getAgFactor();
+    }
+
+    private boolean consumedQuantum(Process process) {
+        return process.getCurrentBurstDuration() >= process.getQuantum();
+    }
+
+    private void increaseProcessQuantum(Process process, int additional) {
+        process.setQuantum(process.getQuantum() + additional);
+    }
+
+    private int calculateAvgQuantum() {
+        long processCount = super.getReadyQueueStream().count();
+
+        if (processCount < 1) {
+            return 0;
+        }
+
+        return (int)Math.ceil(
+                super.getReadyQueueStream()
+                .mapToInt(Process::getQuantum)
+                .sum()
+                / (double)processCount
+                / 10.0
+        );
+    }
+
+    private boolean canPreemptProcess(Process activeProcess) {
+        int activeFor = activeProcess.getCurrentBurstDuration();
         int quantum = activeProcess.getQuantum();
 
         return (activeFor >= Math.ceil(quantum / 2.0));

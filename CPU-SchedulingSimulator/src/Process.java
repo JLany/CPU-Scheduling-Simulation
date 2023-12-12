@@ -5,9 +5,12 @@ public class Process {
     private int priority;
     private int burstTime;
     private int quantum;
+    private int currentBurstStart;
+    private int currentBurstDuration;
     private int waitingTime;
     private int agFactor;
     private int lastRunTime;
+    private boolean dead;
 
     public Process(int pid, String name, int arrivalTime, int priority, int burstTime, int quantum) {
         this.pid = pid;
@@ -16,6 +19,8 @@ public class Process {
         this.priority = priority;
         this.burstTime = burstTime;
         this.quantum = quantum;
+        this.currentBurstStart = 0;
+        this.currentBurstDuration = 0;
         this.waitingTime = 0;
         this.agFactor = -1;
         this.lastRunTime = 0;
@@ -57,10 +62,12 @@ public class Process {
         return burstTime;
     }
 
-
-
     public void setBurstTime(int burstTime) {
         this.burstTime = burstTime;
+    }
+
+    public void decrementBurstTime() {
+        this.burstTime--;
     }
 
     public int getQuantum() {
@@ -69,6 +76,26 @@ public class Process {
 
     public void setQuantum(int quantum) {
         this.quantum = quantum;
+    }
+
+    public int getCurrentBurstStart() {
+        return currentBurstStart;
+    }
+
+    public void setCurrentBurstStart(int currentBurstStart) {
+        this.currentBurstStart = currentBurstStart;
+    }
+
+    public int getCurrentBurstDuration() {
+        return currentBurstDuration;
+    }
+
+    public void resetCurrentBurstDuration() {
+        this.currentBurstDuration = 0;
+    }
+
+    public void incrementCurrentBurstDuration() {
+        this.currentBurstDuration++;
     }
 
     public int getWaitingTime() {
@@ -93,5 +120,13 @@ public class Process {
 
     public void setLastRunTime(int lastRunTime) {
         this.lastRunTime = lastRunTime;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 }
