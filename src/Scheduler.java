@@ -7,7 +7,6 @@ public abstract class Scheduler {
 
     // Think: Should these be defined here in the base?
 
-    private boolean _run;
     private int _time;
     private final int _contextSwitchTime;
     private Process _activeProcess;
@@ -33,23 +32,27 @@ public abstract class Scheduler {
     }
 
     public final void start() {
-
+        
         // This loop's iteration performs either a context switch + cpu cycle, or just a cpu cycle.
         // Why single cpu cycle?
         // Because some algorithms are preemptive, and thus a process
         // could be preempted after each cycle of cpu.
 
-        while (_run) {
+        while (true) {
             // This simulates a process arriving.
             populateQueue();
 
             // This simulates switching to another process.
-            if (_activeProcess == null || shouldDoContextSwitch()) {
+            if (_activeProcess == null || (!_readyQueue.isEmpty() && shouldDoContextSwitch())) {
                 doContextSwitch();
             }
 
             // This simulates the active process executing.
             advanceCpuCycle();
+
+            if (_activeProcess == null && _readyQueue.isEmpty() && _arrivalBus.isEmpty()) {
+                break;
+            }
         }
 
     }
@@ -67,6 +70,9 @@ public abstract class Scheduler {
         // Note that poll() throws an exception if the queue is empty.
         // That's why we do this check.
         if (!_readyQueue.isEmpty()) {
+            // TODO: Find better way to debug
+            System.out.printf("[%d] Selected process <%s>%n", _time, _readyQueue.peek().getName());
+
             return _readyQueue.poll();
         } else {
             return null;
@@ -90,13 +96,7 @@ public abstract class Scheduler {
 
         if (old != null) {
             old.setLastRunTime(_time);
-            
-            if (old.getRemainingTime() <= 0) {
-                killProcess(old);
-            } else {
-                _readyQueue.add(old);
-            }
-            
+            _readyQueue.add(old);
             _time += _contextSwitchTime;
         }
     }
@@ -110,6 +110,11 @@ public abstract class Scheduler {
             // other adjustments needed for a process.
             _activeProcess.incrementCurrentBurstDuration();
             _activeProcess.decrementRemainingTime();
+
+            if (_activeProcess.getRemainingTime() <= 0) {
+                killProcess(_activeProcess);
+                _activeProcess = null;
+            }
         }
 
         _time++;
