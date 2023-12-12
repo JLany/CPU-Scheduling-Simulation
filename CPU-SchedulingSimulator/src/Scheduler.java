@@ -23,6 +23,10 @@ public abstract class Scheduler {
 
     public void start() {
 
+        // This loop's iteration counts as one unit of time.
+        // Why?
+        // Because some algorithms are preemptive, and thus a process
+        // could be preempted after each cycle of cpu.
         while (_run) {
             // This simulates a process arriving.
             populateQueue();
