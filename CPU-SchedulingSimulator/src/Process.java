@@ -1,9 +1,10 @@
 public class Process {
-    private int pid;
-    private String name;
-    private int arrivalTime;
-    private int priority;
-    private int burstTime;
+    private final int pid;
+    private final String name;
+    private final int arrivalTime;
+    private final int priority;
+    private final int burstTime;
+
     private int quantum;
     private int currentBurstStart;
     private int currentBurstDuration;
@@ -31,44 +32,20 @@ public class Process {
         return pid;
     }
 
-    public void setPid(int pid) {
-        this.pid = pid;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getArrivalTime() {
         return arrivalTime;
     }
 
-    public void setArrivalTime(int arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
     public int getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
     public int getBurstTime() {
         return burstTime;
-    }
-
-    public void setBurstTime(int burstTime) {
-        this.burstTime = burstTime;
-    }
-
-    public void decrementBurstTime() {
-        this.burstTime--;
     }
 
     public int getQuantum() {
