@@ -23,7 +23,7 @@ public class AgScheduler extends Scheduler {
 
     private int calculateAg(Process process) {
         int rf = _random.nextInt(21);
-        int ag = getActiveProcess().getArrivalTime() + process.getBurstTime();
+        int ag = process.getArrivalTime() + process.getBurstTime();
 
         if (rf == 10) {
             ag += process.getPriority();
