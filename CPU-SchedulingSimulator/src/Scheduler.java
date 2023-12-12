@@ -44,72 +44,73 @@ public abstract class Scheduler {
             populateQueue();
 
             // This simulates switching to another process.
-            if (dispatch()) {
-                dispatchInternal();
+            if (_activeProcess == null || shouldDoContextSwitch()) {
+                doContextSwitch();
             }
 
             // This simulates the active process executing.
-            cpuCycle();
+            advanceCpuCycle();
         }
 
     }
 
     private void populateQueue() {
-        if (_arrivalBus.size() < 1) {
-            return;
-        }
-
-        // Look for a process with arrival time equal to current time.
+        // Look for a process with arrival time less than or equal to current time.
         // If any, push it to the ready queue.
-        // Note: The check above guarantees that the queue is not empty.
-        while (_arrivalBus.peek().getArrivalTime() == _time) {
+        while (!_arrivalBus.isEmpty() && _arrivalBus.peek().getArrivalTime() <= _time) {
             _readyQueue.add(_arrivalBus.poll());
+        }
+    }
+
+    // Selects the next process to be scheduled. May be overridden by child class.
+    protected Process selectNextProcess() {
+        // Note that poll() throws an exception if the queue is empty.
+        // That's why we do this check.
+        if (!_readyQueue.isEmpty()) {
+            return _readyQueue.poll();
+        } else {
+            return null;
         }
     }
 
     // This method will vary across different scheduling algorithms.
     // Return true if dispatched. Else false, indicating that no switch was needed.
-    protected abstract boolean dispatch();
+    protected abstract boolean shouldDoContextSwitch();
 
     // Performs the actual context switch.
-    private void dispatchInternal() {
+    private void doContextSwitch() {
         Process old = _activeProcess;
 
-        _activeProcess = _readyQueue.poll();
-
-        // No processes in the ready queue.
-        if (_activeProcess == null) {
-            return;
+        _activeProcess = selectNextProcess();
+        if (_activeProcess != null) {
+            _activeProcess.resetCurrentBurstDuration();
+            _activeProcess.setCurrentBurstStart(_time);
+            _activeProcess.setWaitingTime(_activeProcess.getWaitingTime() + (_time - _activeProcess.getLastRunTime()));
         }
 
-        _activeProcess.resetCurrentBurstDuration();
-        _activeProcess.setCurrentBurstStart(_time);
-        _activeProcess.setWaitingTime(_activeProcess.getWaitingTime() + (_time - _activeProcess.getLastRunTime()));
-
-        old.setLastRunTime(_time);
-
-        if (old.getBurstTime() <= 0) {
-            old.setDead(true);
-            _killedProcesses.add(old);
-        } else {
-            _readyQueue.add(old);
+        if (old != null) {
+            old.setLastRunTime(_time);
+            
+            if (old.getRemainingTime() <= 0) {
+                killProcess(old);
+            } else {
+                _readyQueue.add(old);
+            }
+            
+            _time += _contextSwitchTime;
         }
-
-        _time += _contextSwitchTime;
     }
 
     // This method counts as one time unit only.
-    private void cpuCycle() {
-        if (_activeProcess == null) {
-            return;
+    private void advanceCpuCycle() {
+        if (_activeProcess != null) {
+            // TODO - Think: What else needs adjustment during execution of a process?
+            // _activeProcess.remainingTime--
+            // ...
+            // other adjustments needed for a process.
+            _activeProcess.incrementCurrentBurstDuration();
+            _activeProcess.decrementRemainingTime();
         }
-
-        // TODO - Think: What else needs adjustment during execution of a process?
-        // _activeProcess.remainingTime--
-        // ...
-        // other adjustments needed for a process.
-        _activeProcess.incrementCurrentBurstDuration();
-        _activeProcess.decrementBurstTime();
 
         _time++;
     }
@@ -122,7 +123,8 @@ public abstract class Scheduler {
         return _readyQueue.peek();
     }
 
-    protected final void addToKilled(Process process) {
+    protected final void killProcess(Process process) {
+        process.setDead(true);
         _killedProcesses.add(process);
     }
 
