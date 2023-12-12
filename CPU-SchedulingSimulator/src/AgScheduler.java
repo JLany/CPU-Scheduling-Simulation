@@ -37,7 +37,7 @@ public class AgScheduler extends Scheduler {
     }
 
     @Override
-    protected boolean dispatch() {
+    protected boolean shouldDoContextSwitch() {
         Process activeProcess = super.getActiveProcess();
 
         if (!canPreemptProcess(super.getActiveProcess())) {
