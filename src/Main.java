@@ -26,5 +26,18 @@ public class Main {
         final var srtfSched = new SRTFScheduler(srtfProcesses, 0, 10);
         srtfSched.start();
 
+        System.out.println("Priority Scheduler");
+        final var priorityProcesses = new ArrayList<Process>();
+
+        // Example from the book page 270
+        priorityProcesses.add(new Process(1, "P1", 0, 3, 10, 0));
+        priorityProcesses.add(new Process(2, "P2", 0, 1, 1, 0));
+        priorityProcesses.add(new Process(3, "P3", 0, 4, 2, 0));
+        priorityProcesses.add(new Process(4, "P4", 0, 5, 1, 0));
+        priorityProcesses.add(new Process(5, "P5", 0, 2, 5, 0));
+
+        final var prioritySched = new PriorityScheduler(priorityProcesses, 0, 10);
+        prioritySched.start();
+
     }
 }
