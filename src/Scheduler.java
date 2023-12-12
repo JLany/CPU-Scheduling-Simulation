@@ -61,7 +61,9 @@ public abstract class Scheduler {
         // Look for a process with arrival time less than or equal to current time.
         // If any, push it to the ready queue.
         while (!_arrivalBus.isEmpty() && _arrivalBus.peek().getArrivalTime() <= _time) {
-            _readyQueue.add(_arrivalBus.poll());
+            Process toAdd = _arrivalBus.poll();
+            toAdd.setArrived(true);
+            _readyQueue.add(toAdd);
         }
     }
 
