@@ -1,8 +1,8 @@
 import java.util.*;
 
-public class SJFScheduler extends Scheduler {
+public class SRTFScheduler extends Scheduler {
 
-    public SJFScheduler(List<Process> processes, int contextSwitchTime) {
+    public SRTFScheduler(List<Process> processes, int contextSwitchTime) {
         super(processes, contextSwitchTime, new PriorityQueue<Process>(new Comparator<Process>() {
             @Override
             public int compare(Process a, Process b) {
