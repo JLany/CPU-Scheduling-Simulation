@@ -1,13 +1,15 @@
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class AgScheduler extends Scheduler {
     private final Random _random = new Random();
 
-    public AgScheduler(List<Process> processes, int contextSwitchTime) {
-        super(processes, contextSwitchTime, Comparator.comparingInt(Process::getAgFactor));
+    // Internal queue for local decision-making.
+    private final PriorityQueue<Process> _agFactorQueue;
 
+    public AgScheduler(List<Process> processes, int contextSwitchTime) {
+        super(processes, contextSwitchTime);
+
+        _agFactorQueue = new PriorityQueue<>(Comparator.comparingInt(Process::getAgFactor));
         initAg(processes);
     }
 
@@ -15,6 +17,8 @@ public class AgScheduler extends Scheduler {
         for (Process p : processes) {
             p.setAgFactor(calculateAg(p));
         }
+
+        _agFactorQueue.addAll(processes);
     }
 
     private int calculateAg(Process process) {
@@ -74,7 +78,11 @@ public class AgScheduler extends Scheduler {
     }
 
     private boolean checkForHigherPriority(Process process) {
-        Process candidate = super.peekReadyQueue();
+        Optional<Process> processOptional = _agFactorQueue.stream()
+                .filter(Process::isArrived)
+                .findFirst();
+
+        Process candidate = processOptional.orElse(null);
 
         return candidate != null && candidate.getAgFactor() < process.getAgFactor();
     }

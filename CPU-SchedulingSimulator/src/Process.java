@@ -11,6 +11,7 @@ public class Process {
     private int agFactor;
     private int lastRunTime;
     private boolean dead;
+    private boolean arrived;
 
     public Process(int pid, String name, int arrivalTime, int priority, int burstTime, int quantum) {
         this.pid = pid;
@@ -128,5 +129,13 @@ public class Process {
 
     public void setDead(boolean dead) {
         this.dead = dead;
+    }
+
+    public boolean isArrived() {
+        return arrived;
+    }
+
+    public void setArrived(boolean arrived) {
+        this.arrived = arrived;
     }
 }
