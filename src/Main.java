@@ -76,7 +76,11 @@ public class Main {
 
         System.out.println();
 
-        List<Process> processes = evaluator.getProcesses();
+        List<Process> processes = evaluator.getProcesses()
+                .stream()
+                .sorted(Comparator.comparing(Process::getName))
+                .toList();
+
         System.out.println("\tProcess\t\tWaiting Time");
         for (Process p : processes) {
             System.out.printf("\t%s\t\t\t%d\n", p.getName(), p.getWaitingTime());
