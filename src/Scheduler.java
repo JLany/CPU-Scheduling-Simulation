@@ -66,6 +66,7 @@ public abstract class Scheduler {
         while (!_arrivalBus.isEmpty() && _arrivalBus.peek().getArrivalTime() <= _time) {
             Process toAdd = _arrivalBus.poll();
             toAdd.setArrived(true);
+            toAdd.setWaitingTime(-_time);
 
             // This line should not happen in AG scheduling.
             // TODO - Solve this.
