@@ -43,7 +43,7 @@ public abstract class Scheduler {
             populateQueue();
 
             // This simulates switching to another process.
-            if (_activeProcess == null || (!_readyQueue.isEmpty() && shouldDoContextSwitch())) {
+             if (_activeProcess == null || shouldDoContextSwitch()) {
                 doContextSwitch();
             }
 
@@ -66,7 +66,7 @@ public abstract class Scheduler {
 
             // This line should not happen in AG scheduling.
             // TODO - Solve this.
-            _readyQueue.add(toAdd);
+            pushReadyQueue(toAdd);
         }
     }
 
@@ -101,7 +101,7 @@ public abstract class Scheduler {
 
         if (old != null) {
             old.setLastRunTime(_time);
-            _readyQueue.add(old);
+            pushReadyQueue(old);
             _time += _contextSwitchTime;
         }
     }
@@ -133,12 +133,17 @@ public abstract class Scheduler {
         return _readyQueue.peek();
     }
 
+    protected void pushReadyQueue(Process process) {
+        _readyQueue.add(process);
+    }
+
     protected final void killProcess(Process process) {
         process.setDead(true);
         _killedProcesses.add(process);
     }
 
-    protected final Stream<Process> getReadyQueueStream() {
-        return _readyQueue.stream();
+    // This method is temporary, just for debugging purposes.
+    protected final int getTime() {
+        return _time;
     }
 }

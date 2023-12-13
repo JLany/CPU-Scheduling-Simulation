@@ -21,6 +21,7 @@ public class SRTFScheduler extends Scheduler {
 
     @Override
     protected boolean shouldDoContextSwitch() {
+        // TODO - Need to check null here.
         return getActiveProcess().getRemainingTime() > peekReadyQueue().getRemainingTime();
     }
 
