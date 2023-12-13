@@ -6,8 +6,8 @@ public class PriorityScheduler extends Scheduler {
         super(processes, contextSwitchTime, new PriorityQueue<Process>(new Comparator<Process>() {
             @Override
             public int compare(Process a, Process b) {
-                final var priorityA = a.getPriority() - a.getArrivalTime() / agingRate;
-                final var priorityB = b.getPriority() - b.getArrivalTime() / agingRate;
+                final var priorityA = a.getPriority() + a.getArrivalTime() / agingRate;
+                final var priorityB = b.getPriority() + b.getArrivalTime() / agingRate;
                 if (priorityA != priorityB) {
                     return priorityA - priorityB;
                 }
