@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Stream;
 
 public class AgScheduler extends Scheduler {
     private final Random _random = new Random();
@@ -14,9 +15,9 @@ public class AgScheduler extends Scheduler {
     }
 
     private void initAg(List<Process> processes) {
-        for (Process p : processes) {
-            p.setAgFactor(calculateAg(p));
-        }
+//        for (Process p : processes) {
+//            p.setAgFactor(calculateAg(p));
+//        }
 
         _agFactorQueue.addAll(processes);
     }
@@ -40,7 +41,7 @@ public class AgScheduler extends Scheduler {
     protected boolean shouldDoContextSwitch() {
         Process activeProcess = super.getActiveProcess();
 
-        if (!canPreemptProcess(super.getActiveProcess())) {
+        if (!canPreemptProcess(activeProcess)) {
             return false;
         }
 
@@ -51,6 +52,8 @@ public class AgScheduler extends Scheduler {
             int avgQuantum = calculateAvgQuantum();
             increaseProcessQuantum(activeProcess, avgQuantum);
 
+            super.pushReadyQueue(activeProcess);
+
             return true;
         }
 
@@ -58,6 +61,8 @@ public class AgScheduler extends Scheduler {
         if (checkForHigherPriority(activeProcess).isPresent()) {
             int remainingQuantum = activeProcess.getQuantum() - activeProcess.getCurrentBurstDuration();
             increaseProcessQuantum(activeProcess, remainingQuantum);
+
+            super.pushReadyQueue(activeProcess);
 
             return true;
         }
@@ -76,10 +81,15 @@ public class AgScheduler extends Scheduler {
     }
 
     private Optional<Process> checkForHigherPriority(Process process) {
-        Optional<Process> processOptional = _agFactorQueue.stream()
+        Stream<Process> availableProcesses = getAvailableProcesses();
+
+        if (process == null) {
+            return availableProcesses
+                    .findFirst();
+        }
+
+        Optional<Process> processOptional = availableProcesses
                 .filter(p -> p.getPid() != process.getPid())
-                .filter(Process::isArrived)
-                .filter(p -> !p.isDead())
                 .findFirst();
 
         Process candidate = processOptional.orElse(null);
@@ -100,14 +110,14 @@ public class AgScheduler extends Scheduler {
     }
 
     private int calculateAvgQuantum() {
-        long processCount = super.getReadyQueueStream().count();
+        long processCount = getAvailableProcesses().count();
 
         if (processCount < 1) {
             return 0;
         }
 
         return (int)Math.ceil(
-                super.getReadyQueueStream()
+                getAvailableProcesses()
                 .mapToInt(Process::getQuantum)
                 .sum()
                 / (double)processCount
@@ -122,10 +132,25 @@ public class AgScheduler extends Scheduler {
         return (activeFor >= Math.ceil(quantum / 2.0));
     }
 
+    private Stream<Process> getAvailableProcesses() {
+        return _agFactorQueue.stream()
+            .filter(Process::isArrived)
+            .filter(p -> !p.isDead());
+    }
+
     @Override
     protected Process selectNextProcess() {
         var processOptional = checkForHigherPriority(super.getActiveProcess());
 
+        if (processOptional.isPresent())
+            System.out.printf("[%d] Selected process <%s>%n", super.getTime(), processOptional.get().getName());
+
         return processOptional.orElseGet(super::selectNextProcess);
+    }
+
+    @Override
+    protected void pushReadyQueue(Process process) {
+        // Do nothing.
+        // This is to suppress parent's implementation.
     }
 }
