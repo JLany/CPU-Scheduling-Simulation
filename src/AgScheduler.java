@@ -15,9 +15,9 @@ public class AgScheduler extends Scheduler {
     }
 
     private void initAg(List<Process> processes) {
-//        for (Process p : processes) {
-//            p.setAgFactor(calculateAg(p));
-//        }
+        for (Process p : processes) {
+            p.setAgFactor(calculateAg(p));
+        }
 
         _agFactorQueue.addAll(processes);
     }
