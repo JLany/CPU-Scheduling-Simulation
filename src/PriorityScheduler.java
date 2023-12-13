@@ -2,7 +2,7 @@ import java.util.*;
 
 public class PriorityScheduler extends Scheduler {
 
-    public PriorityScheduler(List<Process> processes, int contextSwitchTime, int agingRate) {
+    public PriorityScheduler(List<Process> processes, int contextSwitchTime, int agingRate, AlgorithmEvaluator evaluator) {
         super(processes, contextSwitchTime, new PriorityQueue<Process>(new Comparator<Process>() {
             @Override
             public int compare(Process a, Process b) {
@@ -16,7 +16,8 @@ public class PriorityScheduler extends Scheduler {
                 }
                 return 0;
             }
-        }));
+        }),
+                evaluator);
     }
 
     @Override

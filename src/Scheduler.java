@@ -13,9 +13,10 @@ public abstract class Scheduler {
     private final Queue<Process> _readyQueue;
     private final PriorityQueue<Process> _arrivalBus;
     private final List<Process> _killedProcesses;
+    private final AlgorithmEvaluator _evaluator;
 
     // Initializes the ready queue as a custom queue chosen by implementors.
-    public Scheduler(List<Process> processes, int contextSwitchTime, Queue<Process> queueImpl) {
+    public Scheduler(List<Process> processes, int contextSwitchTime, Queue<Process> queueImpl, AlgorithmEvaluator evaluator) {
         _arrivalBus = new PriorityQueue<>(Comparator.comparingInt(Process::getArrivalTime));
         _arrivalBus.addAll(processes);
 
@@ -24,11 +25,13 @@ public abstract class Scheduler {
 
         _contextSwitchTime = contextSwitchTime;
         _killedProcesses = new ArrayList<>();
+
+        _evaluator = evaluator;
     }
 
     // Initializes the ready queue as a FIFO.
-    public Scheduler(List<Process> processes, int contextSwitchTime) {
-        this(processes, contextSwitchTime, new LinkedList<>());
+    public Scheduler(List<Process> processes, int contextSwitchTime, AlgorithmEvaluator evaluator) {
+        this(processes, contextSwitchTime, new LinkedList<>(), evaluator);
     }
 
     public final void start() {
@@ -97,6 +100,8 @@ public abstract class Scheduler {
             _activeProcess.resetCurrentBurstDuration();
             _activeProcess.setCurrentBurstStart(_time);
             _activeProcess.setWaitingTime(_activeProcess.getWaitingTime() + (_time - _activeProcess.getLastRunTime()));
+
+            _evaluator.addToTimeline(_activeProcess);
         }
 
         if (old != null) {

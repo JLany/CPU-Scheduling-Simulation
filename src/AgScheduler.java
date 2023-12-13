@@ -7,17 +7,17 @@ public class AgScheduler extends Scheduler {
     // Internal queue for local decision-making.
     private final PriorityQueue<Process> _agFactorQueue;
 
-    public AgScheduler(List<Process> processes, int contextSwitchTime) {
-        super(processes, contextSwitchTime);
+    public AgScheduler(List<Process> processes, int contextSwitchTime, AlgorithmEvaluator evaluator) {
+        super(processes, contextSwitchTime, evaluator);
 
         _agFactorQueue = new PriorityQueue<>(Comparator.comparingInt(Process::getAgFactor));
         initAg(processes);
     }
 
     private void initAg(List<Process> processes) {
-        for (Process p : processes) {
-            p.setAgFactor(calculateAg(p));
-        }
+//        for (Process p : processes) {
+//            p.setAgFactor(calculateAg(p));
+//        }
 
         _agFactorQueue.addAll(processes);
     }

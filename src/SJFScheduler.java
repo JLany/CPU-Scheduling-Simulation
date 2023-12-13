@@ -2,7 +2,7 @@ import java.util.*;
 
 public class SJFScheduler extends Scheduler {
 
-    public SJFScheduler(List<Process> processes, int contextSwitchTime) {
+    public SJFScheduler(List<Process> processes, int contextSwitchTime, AlgorithmEvaluator evaluator) {
         super(processes, contextSwitchTime, new PriorityQueue<Process>(new Comparator<Process>() {
             @Override
             public int compare(Process a, Process b) {
@@ -14,7 +14,8 @@ public class SJFScheduler extends Scheduler {
                 }
                 return 0;
             }
-        }));
+        }),
+                evaluator);
     }
 
     @Override
