@@ -4,13 +4,8 @@ import java.util.stream.Stream;
 public class AgScheduler extends Scheduler {
     private final Random _random = new Random();
 
-    // Internal queue for local decision-making.
-    private final PriorityQueue<Process> _agFactorQueue;
-
     public AgScheduler(List<Process> processes, int contextSwitchTime, AlgorithmEvaluator evaluator) {
         super(processes, contextSwitchTime, evaluator);
-
-        _agFactorQueue = new PriorityQueue<>(Comparator.comparingInt(Process::getAgFactor));
         initAg(processes);
     }
 
@@ -19,8 +14,6 @@ public class AgScheduler extends Scheduler {
         for (Process p : processes) {
             p.setAgFactor(calculateAg(p));
         }
-
-        _agFactorQueue.addAll(processes);
     }
 
     private int calculateAg(Process process) {
