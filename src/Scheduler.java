@@ -1,8 +1,6 @@
 import java.util.*;
 import java.util.stream.Stream;
 
-// TODO - Think: How to incorporate gathering statistics in the process of this class?
-
 public abstract class Scheduler {
 
     // Think: Should these be defined here in the base?
@@ -46,7 +44,7 @@ public abstract class Scheduler {
             populateQueue();
 
             // This simulates switching to another process.
-             if (_activeProcess == null || shouldDoContextSwitch()) {
+             if (_activeProcess == null || (!_readyQueue.isEmpty() && shouldDoContextSwitch())) {
                 doContextSwitch();
             }
 
@@ -57,7 +55,6 @@ public abstract class Scheduler {
                 break;
             }
         }
-
     }
 
     private void populateQueue() {
@@ -68,9 +65,7 @@ public abstract class Scheduler {
             toAdd.setArrived(true);
             toAdd.setWaitingTime(-_time);
 
-            // This line should not happen in AG scheduling.
-            // TODO - Solve this.
-            pushReadyQueue(toAdd);
+            _readyQueue.add(toAdd);
         }
     }
 
@@ -107,7 +102,7 @@ public abstract class Scheduler {
 
         if (old != null) {
             old.setLastRunTime(_time);
-            pushReadyQueue(old);
+            _readyQueue.add(old);
             _time += _contextSwitchTime;
         }
     }
@@ -115,10 +110,6 @@ public abstract class Scheduler {
     // This method counts as one time unit only.
     private void advanceCpuCycle() {
         if (_activeProcess != null) {
-            // TODO - Think: What else needs adjustment during execution of a process?
-            // _activeProcess.remainingTime--
-            // ...
-            // other adjustments needed for a process.
             _activeProcess.incrementCurrentBurstDuration();
             _activeProcess.decrementRemainingTime();
 
@@ -139,16 +130,20 @@ public abstract class Scheduler {
         return _readyQueue.peek();
     }
 
-    protected void pushReadyQueue(Process process) {
-        _readyQueue.add(process);
-    }
-
     protected final void killProcess(Process process) {
         process.setDead(true);
         _killedProcesses.add(process);
     }
 
-    // This method is temporary, just for debugging purposes.
+    protected final Stream<Process> getReadyQueueStream() {
+        return _readyQueue.stream();
+    }
+
+    protected final boolean removeFromReadyQueue(Process process) {
+        return _readyQueue.remove(process);
+    }
+
+//     This method is temporary, just for debugging purposes.
     protected final int getTime() {
         return _time;
     }
