@@ -15,6 +15,8 @@ public class Main {
         final var sjfSched = new SJFScheduler(sjfProcesses, 0, sjfEvaluator);
         sjfSched.start();
 
+        printResults(sjfEvaluator);
+
         System.out.println("Shortest-Remaining-Time-First Scheduler");
         final var srtfProcesses = new ArrayList<Process>();
 
@@ -27,6 +29,8 @@ public class Main {
         AlgorithmEvaluator srtfEvaluator = new AlgorithmEvaluator();
         final var srtfSched = new SRTFScheduler(srtfProcesses, 0, 10, srtfEvaluator);
         srtfSched.start();
+
+        printResults(srtfEvaluator);
 
         System.out.println("Priority Scheduler");
         final var priorityProcesses = new ArrayList<Process>();
