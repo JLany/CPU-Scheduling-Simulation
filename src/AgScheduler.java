@@ -122,7 +122,8 @@ public class AgScheduler extends Scheduler {
         var processOptional = checkForHigherPriority(super.getActiveProcess());
 
         if (processOptional.isPresent()) {
-            System.out.printf("[%d] Selected process <%s>%n", super.getTime(), processOptional.get().getName());
+            // We remove from an arbitrary position because the choice was not made
+            // based on the normal FIFO ordering of the RR part of the scheduler.
             super.removeFromReadyQueue(processOptional.get());
 
             return processOptional.get();

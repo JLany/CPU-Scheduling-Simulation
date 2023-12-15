@@ -2,9 +2,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class Scheduler {
-
-    // Think: Should these be defined here in the base?
-
     private int _time;
     private final int _contextSwitchTime;
     private Process _activeProcess;
@@ -74,9 +71,6 @@ public abstract class Scheduler {
         // Note that poll() throws an exception if the queue is empty.
         // That's why we do this check.
         if (!_readyQueue.isEmpty()) {
-            // TODO: Find better way to debug
-            System.out.printf("[%d] Selected process <%s>%n", _time, _readyQueue.peek().getName());
-
             return _readyQueue.poll();
         } else {
             return null;
@@ -144,7 +138,7 @@ public abstract class Scheduler {
     }
 
 //     This method is temporary, just for debugging purposes.
-    protected final int getTime() {
-        return _time;
-    }
+//    protected final int getTime() {
+//        return _time;
+//    }
 }
