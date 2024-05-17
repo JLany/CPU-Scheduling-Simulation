@@ -63,6 +63,7 @@ The repository is organized as follows:
 
 This project is built on fundamental concepts of operating systems and CPU scheduling. Special thanks to:
 
+- The AWESOME team mate: Michael Yousrey 
 - Educational resources and textbooks on operating systems for providing theoretical foundations.
 - Java documentation and community for support in implementing the project.
 
